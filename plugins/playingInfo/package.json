@@ -1,7 +1,9 @@
 {
-	"name": "PlayNowInfo",
+	"name": "@luna/playnowinfo",
+	"displayName": "PlayNowInfo",
+	"lunaBundleName": "luna.playNowInfo",
 	"version": "0.1.0",
-	"description": "현재 재생 상태에 대한 정보를 Node 서비스로 웹소켓 전송",
+    "description": "현재 TIDAL 재생 세부 정보를 콘솔에 기록합니다.",
 	"author": {
 		"name": "kimdh08",
 		"url": "https://github.com/kimdh08/TidaLuna"

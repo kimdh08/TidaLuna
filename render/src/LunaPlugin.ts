@@ -22,6 +22,7 @@ export type LunaAuthor = {
 };
 export type PluginPackage = {
 	name: string;
+	displayName?: string;
 	hash: string;
 	author?: LunaAuthor | string;
 	homepage?: string;

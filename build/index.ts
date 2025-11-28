@@ -25,7 +25,7 @@ export const pluginBuildOptions = async (pluginPath: string, opts?: BuildOptions
 	const pluginPackage = await readFile(pkgPath, "utf8").then(JSON.parse);
 	// Sanitize pluginPackage.name, remove @, replace / with .
 	const pkgName = pluginPackage.name;
-	const safeName = pkgName.replace(/@/g, "").replace(/\//g, ".");
+	const safeName = (pluginPackage.lunaBundleName as string | undefined) ?? pkgName.replace(/@/g, "").replace(/\//g, ".");
 	// Handle exports being either a string or an object with "." or "default" entry
 	const exportsValue = typeof pluginPackage.exports === "string" 
 		? pluginPackage.exports 

@@ -20,6 +20,12 @@ import { LunaPlugin } from "./LunaPlugin";
 
 // Wrap loading of plugins in a timeout so native/preload.ts can populate modules with @luna/core (see native/preload.ts)
 setTimeout(async () => {
+	const legacyPluginNames = ["@luna/playingInfo", "playingInfo", "playNowInfo", "@luna/playNowInfo", "@luna/playnowinfo"];
+	for (const legacyName of legacyPluginNames) {
+		const stored = await LunaPlugin.pluginStorage.get<{ url?: string }>(legacyName);
+		if (stored?.url?.includes("luna/playNowInfo") || stored?.url?.includes("luna.playNowInfo")) await LunaPlugin.pluginStorage.del(legacyName);
+	}
+
 	// Load lib
 	await LunaPlugin.fromStorage({ enabled: true, url: "https://luna/luna.lib.native" });
 	await LunaPlugin.fromStorage({ enabled: true, url: "https://luna/luna.lib" });
@@ -27,8 +33,8 @@ setTimeout(async () => {
 	await LunaPlugin.fromStorage({ enabled: true, url: "https://luna/luna.ui" });
 	// Load other api's
 	await LunaPlugin.fromStorage({ enabled: true, url: "https://luna/luna.dev" });
-	// Load playing info prototype plugin
-	await LunaPlugin.fromStorage({ enabled: true, url: "https://luna/luna.playingInfo" });
+	// Load PlayNowInfo plugin
+	await LunaPlugin.fromStorage({ enabled: true, url: "https://luna/luna.playNowInfo" });
 
 	// Load all plugins from storage
 	await LunaPlugin.loadStoredPlugins();

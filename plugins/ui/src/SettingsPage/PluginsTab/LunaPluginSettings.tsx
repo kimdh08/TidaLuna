@@ -55,7 +55,7 @@ export const LunaPluginSettings = React.memo(({ plugin }: { plugin: LunaPlugin }
 
 	const author = pkg.author;
 	const desc = pkg.description;
-	const name = pkg.name;
+	const name = pkg.displayName ?? pkg.name;
 	const link = pkg.homepage ?? pkg.repository?.url;
 	let version = isDev ? `${pkg.version ?? ""} [DEV]` : pkg.version;
 
