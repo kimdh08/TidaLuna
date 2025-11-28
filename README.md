@@ -81,7 +81,7 @@ To develop for the luna client follow these steps:
    ```
    or if you dont care about live reloading of `/native/injector.ts` set the `TIDALUNA_DIST_PATH` env variable to your `dist` folder path.
 
-  [추가] 다음과 같이 심볼릭 링크 생성
+   [추가] 다음과 같이 심볼릭 링크 생성
    ```sh
    mklink /D "%LOCALAPPDATA%\TIDAL\app-2.38.6\resources\app" "C:\Apps\TidaLuna\dist"
    ```
