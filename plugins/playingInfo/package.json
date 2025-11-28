@@ -1,10 +1,10 @@
 {
-	"name": "@luna/playingInfo",
+	"name": "PlayNowInfo",
 	"version": "0.1.0",
-	"description": "Prototype plugin for exposing playing information hooks.",
+	"description": "현재 재생 상태에 대한 정보를 Node 서비스로 웹소켓 전송",
 	"author": {
-		"name": "TidaLuna Contributors",
-		"url": "https://github.com/Inrixia/TidaLuna"
+		"name": "kimdh08",
+		"url": "https://github.com/kimdh08/TidaLuna"
 	},
 	"exports": {
 		".": {
