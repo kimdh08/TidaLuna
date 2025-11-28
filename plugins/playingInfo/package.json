@@ -1,0 +1,16 @@
+{
+	"name": "@luna/playingInfo",
+	"version": "0.1.0",
+	"description": "Prototype plugin for exposing playing information hooks.",
+	"author": {
+		"name": "TidaLuna Contributors",
+		"url": "https://github.com/Inrixia/TidaLuna"
+	},
+	"exports": {
+		".": {
+			"types": "./src/index.ts",
+			"default": "./src/index.ts"
+		}
+	},
+	"types": "./src/index.ts"
+}

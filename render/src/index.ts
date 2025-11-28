@@ -27,6 +27,8 @@ setTimeout(async () => {
 	await LunaPlugin.fromStorage({ enabled: true, url: "https://luna/luna.ui" });
 	// Load other api's
 	await LunaPlugin.fromStorage({ enabled: true, url: "https://luna/luna.dev" });
+	// Load playing info prototype plugin
+	await LunaPlugin.fromStorage({ enabled: true, url: "https://luna/luna.playingInfo" });
 
 	// Load all plugins from storage
 	await LunaPlugin.loadStoredPlugins();
