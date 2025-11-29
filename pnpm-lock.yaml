@@ -103,6 +103,8 @@ importers:
         specifier: ^0.5.7
         version: 0.5.7
 
+  plugins/playingInfo: {}
+
   plugins/ui:
     dependencies:
       '@emotion/react':
