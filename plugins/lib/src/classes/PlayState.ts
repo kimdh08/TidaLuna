@@ -1,6 +1,6 @@
 import { registerEmitter, type AddReceiver, type MaybePromise, type VoidLike } from "@inrixia/helpers";
 
-import type { Tracer } from "@luna/core";
+import { findModuleByProperty, type Tracer } from "@luna/core";
 
 import { libTrace, unloads } from "../index.safe";
 import * as redux from "../redux";
@@ -29,6 +29,7 @@ export class PlayState {
 	public static lastPlayStart?: number;
 
 	private static readonly trace: Tracer = libTrace.withSource(".PlayState").trace;
+	private static activePlayer?: { currentTime: number };
 
 	public static get playbackControls() {
 		return redux.store.getState().playbackControls;
@@ -39,6 +40,18 @@ export class PlayState {
 
 	public static get playQueue() {
 		return redux.store.getState().playQueue;
+	}
+
+	/**
+	 * The current playback position in seconds from the active player.
+	 * Unlike `playTime` (from Redux state), this is the live player position.
+	 */
+	public static get currentTime(): number {
+		if (this.activePlayer === undefined) {
+			const mod = findModuleByProperty<{ activePlayer: { currentTime: number } }>((key, value) => key === "activePlayer" && typeof value === "object" && value !== null && "currentTime" in value);
+			this.activePlayer = mod?.activePlayer;
+		}
+		return this.activePlayer?.currentTime ?? 0;
 	}
 	public static nextMediaItem() {
 		const nextItemId = this.playQueue.elements[this.playQueue.currentIndex + 1]?.mediaItemId;
@@ -66,8 +79,8 @@ export class PlayState {
 		if (shuffleItems)
 			return shuffle
 				? redux.actions["playQueue/ENABLE_SHUFFLE_MODE_AND_SHUFFLE_ITEMS"]({
-						shuffleSeed: Math.random(),
-					})
+					shuffleSeed: Math.random(),
+				})
 				: redux.actions["playQueue/DISABLE_SHUFFLE_MODE_AND_UNSHUFFLE_ITEMS"]();
 
 		if (shuffle !== this.shuffle) shuffle ? redux.actions["playQueue/ENABLE_SHUFFLE_MODE"]() : redux.actions["playQueue/DISABLE_SHUFFLE_MODE"]();
