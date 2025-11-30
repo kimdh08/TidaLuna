@@ -203,9 +203,13 @@ const computeElapsedSeconds = (playbackControls: PlaybackControlsState) => {
 	const baseSeconds = playbackControls.latestCurrentTime ?? 0;
 	if (playbackControls.playbackState !== "PLAYING") return baseSeconds;
 	const syncTimestamp = playbackControls.latestCurrentTimeSyncTimestamp;
-	if (typeof syncTimestamp !== "number" || Number.isNaN(syncTimestamp)) return baseSeconds;
-	const deltaSeconds = (Date.now() - syncTimestamp) / 1000;
-	return baseSeconds + Math.max(deltaSeconds, 0);
+	if (typeof syncTimestamp === "number" && Number.isFinite(syncTimestamp)) {
+		const deltaSeconds = (Date.now() - syncTimestamp) / 1000;
+		if (deltaSeconds >= 0) return baseSeconds + deltaSeconds;
+	}
+	// Fallback to the live player clock when Redux timestamps lag behind.
+	const livePosition = PlayState.currentTime;
+	return Number.isFinite(livePosition) ? livePosition : baseSeconds;
 };
 
 const resolvePlaybackControls = () => PlayState.playbackControls;
