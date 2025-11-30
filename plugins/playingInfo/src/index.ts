@@ -1,9 +1,23 @@
 import { Tracer, type LunaUnload } from "@luna/core";
-import { MediaItem, PlayState, getPlaybackInfo } from "@luna/lib";
+import { MediaItem, PlayState, getPlaybackInfo, ipcRenderer } from "@luna/lib";
+import { startCommandServer, stopCommandServer, type RemoteCommand } from "./server.native";
 
 export const unloads = new Set<LunaUnload>();
 
 const { trace } = Tracer("[playingInfo]");
+
+const commandChannel = "__luna/playnowinfo/command";
+
+startCommandServer().catch((error) => logError("startCommandServer", error));
+const commandServerUnload: LunaUnload = () => {
+	stopCommandServer().catch((error) => logError("stopCommandServer", error));
+};
+commandServerUnload.source = "commandServer";
+unloads.add(commandServerUnload);
+
+ipcRenderer.on(unloads, commandChannel, (command: RemoteCommand) => {
+	handleRemoteCommand(command);
+});
 
 let activeMediaItem: MediaItem | undefined;
 let activeDurationSeconds = 0;
@@ -182,10 +196,10 @@ const formatTime = (value: number) => {
 	return `${mins}:${secs}`;
 };
 
-const logError = (context: string, error: unknown) => {
+function logError(context: string, error: unknown) {
 	const normalizedError = error instanceof Error ? error : new Error(String(error));
 	trace.err.withContext(context)(normalizedError);
-};
+}
 
 type PlaybackControlsState = ReturnType<typeof resolvePlaybackControls>;
 
@@ -199,3 +213,47 @@ const computeElapsedSeconds = (playbackControls: PlaybackControlsState) => {
 };
 
 const resolvePlaybackControls = () => PlayState.playbackControls;
+
+const handleRemoteCommand = (command?: RemoteCommand) => {
+	if (!command) return trace.warn("[RemoteCommand] Missing command payload");
+	const clicked = clickRemoteButton(command);
+	if (clicked) {
+		trace.log(`[RemoteCommand] Executed ${command}`);
+	} else {
+		trace.warn(`[RemoteCommand] Failed to execute ${command} - element not found`);
+	}
+};
+
+const remoteCommandSelectors: Record<RemoteCommand, string[]> = {
+	playtoggle: [
+		'button[data-test="play-toggle"]',
+		'button[data-test="play"]',
+		'button[data-test="pause"]',
+		'button[aria-label="Play"]',
+		'button[aria-label="Pause"]',
+	],
+	next: ['button[data-test="next"]', 'button[data-test="Next"]', 'button[aria-label="Next"]'],
+	prev: ['button[data-test="previous"]', 'button[data-test="prev"]', 'button[aria-label="Previous"]'],
+};
+
+const clickRemoteButton = (command: RemoteCommand) => {
+	const selectors = remoteCommandSelectors[command];
+	for (const selector of selectors) {
+		const button = document.querySelector<HTMLButtonElement>(selector);
+		if (button) {
+			button.click();
+			return true;
+		}
+	}
+	if (command === "playtoggle") {
+		const toggleButton =
+			document.querySelector<HTMLButtonElement>('button[data-test="play-toggle"]') ??
+			document.querySelector<HTMLButtonElement>('button[data-test="play"]') ??
+			document.querySelector<HTMLButtonElement>('button[data-test="pause"]');
+		if (toggleButton) {
+			toggleButton.click();
+			return true;
+		}
+	}
+	return false;
+};

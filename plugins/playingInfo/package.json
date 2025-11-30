@@ -3,7 +3,7 @@
 	"displayName": "PlayNowInfo",
 	"lunaBundleName": "luna.playNowInfo",
 	"version": "0.1.0",
-    "description": "현재 TIDAL 재생 세부 정보를 콘솔에 기록합니다.",
+	"description": "현재 TIDAL 재생 세부 정보를 콘솔에 기록합니다.",
 	"author": {
 		"name": "kimdh08",
 		"url": "https://github.com/kimdh08/TidaLuna"
@@ -14,5 +14,9 @@
 			"default": "./src/index.ts"
 		}
 	},
-	"types": "./src/index.ts"
+	"types": "./src/index.ts",
+	"dependencies": {
+		"@types/express": "^5.0.5",
+		"express": "^5.1.0"
+	}
 }
