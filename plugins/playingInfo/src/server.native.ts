@@ -25,6 +25,19 @@ const trackInfoListener = (_event: Electron.IpcMainEvent, payload: TrackStatusPa
 	latestTrackInfo = payload;
 };
 
+const getLiveTrackInfo = (): TrackStatusPayload | undefined => {
+	if (!latestTrackInfo) return undefined;
+	if (latestTrackInfo.status !== "PLAYING") return latestTrackInfo;
+	const updatedAt = latestTrackInfo.positionUpdatedAt;
+	if (typeof updatedAt !== "number" || Number.isNaN(updatedAt)) return latestTrackInfo;
+	const deltaSeconds = (Date.now() - updatedAt) / 1000;
+	if (deltaSeconds <= 0) return latestTrackInfo;
+	const durationSeconds = Number(latestTrackInfo.duration);
+	const nextPosition = latestTrackInfo.positionSeconds + deltaSeconds;
+	const clampedPosition = Number.isFinite(durationSeconds) && durationSeconds > 0 ? Math.min(nextPosition, durationSeconds) : nextPosition;
+	return { ...latestTrackInfo, positionSeconds: clampedPosition };
+};
+
 export const startCommandServer = async () => {
 	if (server !== undefined) return;
 	const app = express();
@@ -38,11 +51,12 @@ export const startCommandServer = async () => {
 		console.log(logPrefix, "query", req.query);
 		const commandInput = getQueryValue(req.query.command ?? req.query.cmd ?? req.query.action ?? req.query.op);
 		if (isInfoCommand(commandInput)) {
-			if (!latestTrackInfo) {
+			const liveTrackInfo = getLiveTrackInfo();
+			if (!liveTrackInfo) {
 				res.status(404).json({ status: "UNKNOWN", message: "No track data" });
 				return;
 			}
-			res.json(latestTrackInfo);
+			res.json(liveTrackInfo);
 			return;
 		}
 		const command = normalizeCommand(commandInput);

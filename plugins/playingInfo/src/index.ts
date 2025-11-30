@@ -25,12 +25,6 @@ let latestTrackInfo: TrackStatusPayload | undefined;
 
 let activeMediaItem: MediaItem | undefined;
 let activeDurationSeconds = 0;
-let lastTrackMeta: {
-	title: string;
-	artist?: string;
-	album?: string;
-	quality?: string;
-} | undefined;
 
 const logTrackDetails = async (mediaItem: MediaItem) => {
 	activeMediaItem = mediaItem;
@@ -81,51 +75,21 @@ const logTrackDetails = async (mediaItem: MediaItem) => {
 			sendTrackUpdate(trackPayload).catch((error: unknown) => logError("sendTrackUpdate", error));
 			const status = resolvePlaybackControls()?.playbackState ?? "UNKNOWN";
 			const positionSeconds = getCurrentPositionSeconds();
-			publishTrackInfo({ ...trackPayload, status, positionSeconds });
+			publishTrackInfo({ ...trackPayload, status, positionSeconds, positionUpdatedAt: Date.now() });
 
 		// trace.log(
 		// 	`[Now Playing] ${title} — ${artistName ?? "Unknown Artist"} (${albumTitle ?? "Unknown Album"}) | Quality: ${playbackInfo.audioQuality}`,
 		// );
 		if (coverUrl) trace.log(`[Artwork] ${title} - ${coverUrl}`);
-		lastTrackMeta = {
-			title,
-			artist: artistName ?? "Unknown Artist",
-			album: albumTitle ?? "Unknown Album",
-			quality: playbackInfo.audioQuality,
-		};
 	} catch (error) {
 		logError("logTrackDetails", error);
 	}
 };
 
-let lastPlaybackState: PlaybackControlsState["playbackState"] | undefined;
-
-const progressInterval = setInterval(() => {
-	if (activeMediaItem === undefined) return;
-	const playbackControls = resolvePlaybackControls();
-	const state = playbackControls.playbackState;
-	const hasStateChanged = state !== lastPlaybackState;
-	const shouldLog = state === "PLAYING" || hasStateChanged;
-	if (!shouldLog) return;
-
-	const elapsedSeconds = computeElapsedSeconds(playbackControls);
-	const durationSeconds = activeDurationSeconds || playbackControls.playbackContext?.actualDuration || activeMediaItem.duration || 0;
-	if (!durationSeconds) return;
-	const percent = Math.min((elapsedSeconds / durationSeconds) * 100, 100);
-	const trackSummary = lastTrackMeta
-		? `${lastTrackMeta.title} — ${lastTrackMeta.artist} (${lastTrackMeta.album}) | Quality: ${lastTrackMeta.quality ?? "?"}`
-		: "Unknown Track";
-	// trace.log(
-	// 	`[Progress] ${formatTime(elapsedSeconds)} / ${formatTime(durationSeconds)} (${percent.toFixed(1)}%) - State: ${state} :: ${trackSummary}`,
-	// );
-	sendProgressUpdate(elapsedSeconds).catch((error: unknown) => logError("sendProgressUpdate", error));
-	lastPlaybackState = state;
-	updateTrackInfoPayload({ status: state, positionSeconds: elapsedSeconds });
-}, 1000);
-
-const intervalUnload: LunaUnload = () => clearInterval(progressInterval);
-intervalUnload.source = "progressInterval";
-unloads.add(intervalUnload);
+PlayState.onState(unloads, (state) => {
+	const positionSeconds = getCurrentPositionSeconds();
+	updateTrackInfoPayload({ status: state, positionSeconds, positionUpdatedAt: Date.now() });
+});
 
 MediaItem.onMediaTransition(unloads, (mediaItem) => {
 	logTrackDetails(mediaItem).catch((error) => logError("onMediaTransition", error));
@@ -151,20 +115,6 @@ const sendTrackUpdate = async (payload: TrackUpdatePayload) => {
 	}
 };
 
-const sendProgressUpdate = async (positionSeconds: number) => {
-	const params = new URLSearchParams({ position: String(positionSeconds) });
-	const sUrl = `http://localhost:3888/setprogress?${params.toString()}`;
-	try {
-		// trace.log("Sending Progress to Tidalspi:", sUrl);
-		const response = await fetch(sUrl);
-		const result = await response.text();
-		// trace.log(`setprogress result: ${result}`);
-	} catch (error) {
-		trace.warn("Tidalspi progress connection error");
-		throw error;
-	}
-};
-
 const extractCoverResourceId = (coverUrl?: string) => {
 	if (!coverUrl) return "";
 	try {
@@ -178,18 +128,6 @@ const extractCoverResourceId = (coverUrl?: string) => {
 	} catch {
 		return "";
 	}
-};
-
-const formatTime = (value: number) => {
-	if (!Number.isFinite(value)) return "00:00";
-	const totalSeconds = Math.max(0, Math.floor(value));
-	const mins = Math.floor(totalSeconds / 60)
-		.toString()
-		.padStart(2, "0");
-	const secs = (totalSeconds % 60)
-		.toString()
-		.padStart(2, "0");
-	return `${mins}:${secs}`;
 };
 
 function logError(context: string, error: unknown) {

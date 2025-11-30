@@ -14,4 +14,5 @@ export type TrackUpdatePayload = {
 export type TrackStatusPayload = TrackUpdatePayload & {
 	status: string;
 	positionSeconds: number;
+	positionUpdatedAt: number;
 };
