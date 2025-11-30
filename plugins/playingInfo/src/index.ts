@@ -1,12 +1,14 @@
 import { Tracer, type LunaUnload } from "@luna/core";
 import { MediaItem, PlayState, getPlaybackInfo, ipcRenderer } from "@luna/lib";
 import { startCommandServer, stopCommandServer, type RemoteCommand } from "./server.native";
+import { type TrackStatusPayload, type TrackUpdatePayload } from "./types";
 
 export const unloads = new Set<LunaUnload>();
 
 const { trace } = Tracer("[playingInfo]");
 
 const commandChannel = "__luna/playnowinfo/command";
+const trackInfoChannel = "__luna/playnowinfo/trackInfo";
 
 startCommandServer().catch((error) => logError("startCommandServer", error));
 const commandServerUnload: LunaUnload = () => {
@@ -18,6 +20,8 @@ unloads.add(commandServerUnload);
 ipcRenderer.on(unloads, commandChannel, (command: RemoteCommand) => {
 	handleRemoteCommand(command);
 });
+
+let latestTrackInfo: TrackStatusPayload | undefined;
 
 let activeMediaItem: MediaItem | undefined;
 let activeDurationSeconds = 0;
@@ -61,8 +65,7 @@ const logTrackDetails = async (mediaItem: MediaItem) => {
 				`album=${albumTitle ?? "Unknown Album"}`,
 				`artist=${artistName ?? "Unknown Artist"}`,
 			];
-			// trace.log(`[Track Details] ${detailsLogParts.join(" | ")}`);
-			sendTrackUpdate({
+			const trackPayload: TrackUpdatePayload = {
 				album: albumTitle ?? "",
 				artist: artistName ?? "",
 				audioquality: playbackInfo.audioQuality,
@@ -73,7 +76,12 @@ const logTrackDetails = async (mediaItem: MediaItem) => {
 				releasedate: releaseDateStr,
 				title,
 				trackid: String(mediaItem.id),
-			}).catch((error: unknown) => logError("sendTrackUpdate", error));
+			};
+			// trace.log(`[Track Details] ${detailsLogParts.join(" | ")}`);
+			sendTrackUpdate(trackPayload).catch((error: unknown) => logError("sendTrackUpdate", error));
+			const status = resolvePlaybackControls()?.playbackState ?? "UNKNOWN";
+			const positionSeconds = getCurrentPositionSeconds();
+			publishTrackInfo({ ...trackPayload, status, positionSeconds });
 
 		// trace.log(
 		// 	`[Now Playing] ${title} — ${artistName ?? "Unknown Artist"} (${albumTitle ?? "Unknown Album"}) | Quality: ${playbackInfo.audioQuality}`,
@@ -112,6 +120,7 @@ const progressInterval = setInterval(() => {
 	// );
 	sendProgressUpdate(elapsedSeconds).catch((error: unknown) => logError("sendProgressUpdate", error));
 	lastPlaybackState = state;
+	updateTrackInfoPayload({ status: state, positionSeconds: elapsedSeconds });
 }, 1000);
 
 const intervalUnload: LunaUnload = () => clearInterval(progressInterval);
@@ -127,19 +136,6 @@ MediaItem.fromPlaybackContext()
 		if (mediaItem) return logTrackDetails(mediaItem);
 	})
 	.catch((error) => logError("initialPlaybackContext", error));
-
-type TrackUpdatePayload = {
-	album: string;
-	artist: string;
-	audioquality: string;
-	duration: string;
-	imgurl: string;
-	isrc: string;
-	popularity: string;
-	releasedate: string;
-	title: string;
-	trackid: string;
-};
 
 const sendTrackUpdate = async (payload: TrackUpdatePayload) => {
 	const params = new URLSearchParams(payload);
@@ -256,4 +252,20 @@ const clickRemoteButton = (command: RemoteCommand) => {
 		}
 	}
 	return false;
+};
+
+const publishTrackInfo = (payload: TrackStatusPayload) => {
+	latestTrackInfo = payload;
+	ipcRenderer.send(trackInfoChannel, payload);
+};
+
+const updateTrackInfoPayload = (partial: Partial<TrackStatusPayload>) => {
+	if (!latestTrackInfo) return;
+	publishTrackInfo({ ...latestTrackInfo, ...partial });
+};
+
+const getCurrentPositionSeconds = () => {
+	const playbackControls = resolvePlaybackControls();
+	if (!playbackControls) return 0;
+	return computeElapsedSeconds(playbackControls);
 };

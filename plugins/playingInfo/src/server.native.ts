@@ -1,6 +1,7 @@
 import express, { type Request, type Response } from "express";
 import type { Server } from "http";
-import type { BrowserWindow } from "electron";
+import { ipcMain, type BrowserWindow } from "electron";
+import type { TrackStatusPayload } from "./types";
 
 export type RemoteCommand = "playtoggle" | "next" | "prev";
 
@@ -15,14 +16,36 @@ let server: Server | undefined;
 
 const logPrefix = "[@luna/playnowinfo][command-server]";
 const commandChannel = "__luna/playnowinfo/command";
+const trackInfoChannel = "__luna/playnowinfo/trackInfo";
+
+let latestTrackInfo: TrackStatusPayload | undefined;
+let trackInfoListenerRegistered = false;
+
+const trackInfoListener = (_event: Electron.IpcMainEvent, payload: TrackStatusPayload) => {
+	latestTrackInfo = payload;
+};
 
 export const startCommandServer = async () => {
 	if (server !== undefined) return;
 	const app = express();
 
+	if (!trackInfoListenerRegistered) {
+		ipcMain.on(trackInfoChannel, trackInfoListener);
+		trackInfoListenerRegistered = true;
+	}
+
 	app.get("/command", (req: Request, res: Response) => {
 		console.log(logPrefix, "query", req.query);
-		const command = normalizeCommand(req.query.command ?? req.query.cmd ?? req.query.action ?? req.query.op);
+		const commandInput = getQueryValue(req.query.command ?? req.query.cmd ?? req.query.action ?? req.query.op);
+		if (isInfoCommand(commandInput)) {
+			if (!latestTrackInfo) {
+				res.status(404).json({ status: "UNKNOWN", message: "No track data" });
+				return;
+			}
+			res.json(latestTrackInfo);
+			return;
+		}
+		const command = normalizeCommand(commandInput);
 		if (!command) {
 			res.status(400).json({ status: "error", message: "Missing or invalid command" });
 			return;
@@ -40,6 +63,16 @@ export const startCommandServer = async () => {
 		.on("error", (error) => {
 			console.error(`${logPrefix} error`, error);
 		});
+};
+
+const getQueryValue = (value: unknown): unknown => {
+	if (Array.isArray(value)) return value[0];
+	return value;
+};
+
+const isInfoCommand = (value: unknown): boolean => {
+	if (typeof value !== "string") return false;
+	return value.toLowerCase() === "info";
 };
 
 const normalizeCommand = (value: unknown): RemoteCommand | undefined => {
@@ -85,4 +118,8 @@ export const stopCommandServer = async () => {
 		});
 	});
 	server = undefined;
+	if (trackInfoListenerRegistered) {
+		ipcMain.removeListener(trackInfoChannel, trackInfoListener);
+		trackInfoListenerRegistered = false;
+	}
 };
