@@ -48,7 +48,7 @@ export const startCommandServer = async () => {
 	}
 
 	app.get("/command", (req: Request, res: Response) => {
-		console.log(logPrefix, "query", req.query);
+		// console.log(logPrefix, "query", req.query);
 		const commandInput = getQueryValue(req.query.command ?? req.query.cmd ?? req.query.action ?? req.query.op);
 		if (isInfoCommand(commandInput)) {
 			const liveTrackInfo = getLiveTrackInfo();
