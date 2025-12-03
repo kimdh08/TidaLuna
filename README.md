@@ -85,6 +85,8 @@ To develop for the luna client follow these steps:
    ```sh
    mklink /D "%LOCALAPPDATA%\TIDAL\app-2.38.6\resources\app" "C:\Apps\TidaLuna\dist"
    ```
+   위 링크를 생성하려면 먼저 app 폴더를 삭제해야 합니다.
+   
 5. Launch Luna
 
 Core plugins under `/plugins` can be reloaded via Luna Settings.  
