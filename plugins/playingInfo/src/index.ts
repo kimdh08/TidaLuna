@@ -47,18 +47,18 @@ const logTrackDetails = async (mediaItem: MediaItem) => {
 			activeDurationSeconds = playbackContext?.actualDuration ?? mediaItem.duration ?? 0;
 			const releaseDateStr = releaseDate?.toISOString().slice(0, 10) ?? "Unknown";
 			const popularity = mediaItem.tidalItem.popularity ?? "Unknown";
-			const detailsLogParts = [
-				`trackid=${mediaItem.id}`,
-				`imgurl=${coverUrl ?? "Unknown"}`,
-				`audioquality=${playbackInfo.audioQuality}`,
-				`releasedate=${releaseDateStr}`,
-				`isrc=${isrc ?? "Unknown"}`,
-				`popularity=${popularity}`,
-				`duration=${activeDurationSeconds || "Unknown"}`,
-				`title=${title}`,
-				`album=${albumTitle ?? "Unknown Album"}`,
-				`artist=${artistName ?? "Unknown Artist"}`,
-			];
+			// const detailsLogParts = [
+			// 	`trackid=${mediaItem.id}`,
+			// 	`imgurl=${coverUrl ?? "Unknown"}`,
+			// 	`audioquality=${playbackInfo.audioQuality}`,
+			// 	`releasedate=${releaseDateStr}`,
+			// 	`isrc=${isrc ?? "Unknown"}`,
+			// 	`popularity=${popularity}`,
+			// 	`duration=${activeDurationSeconds || "Unknown"}`,
+			// 	`title=${title}`,
+			// 	`album=${albumTitle ?? "Unknown Album"}`,
+			// 	`artist=${artistName ?? "Unknown Artist"}`,
+			// ];
 			const trackPayload: TrackUpdatePayload = {
 				album: albumTitle ?? "",
 				artist: artistName ?? "",
@@ -72,7 +72,7 @@ const logTrackDetails = async (mediaItem: MediaItem) => {
 				trackid: String(mediaItem.id),
 			};
 			// trace.log(`[Track Details] ${detailsLogParts.join(" | ")}`);
-			sendTrackUpdate(trackPayload).catch((error: unknown) => logError("sendTrackUpdate", error));
+			// sendTrackUpdate(trackPayload).catch((error: unknown) => logError("sendTrackUpdate", error));
 			const status = resolvePlaybackControls()?.playbackState ?? "UNKNOWN";
 			const positionSeconds = getCurrentPositionSeconds();
 			publishTrackInfo({ ...trackPayload, status, positionSeconds, positionUpdatedAt: Date.now() });
@@ -101,19 +101,19 @@ MediaItem.fromPlaybackContext()
 	})
 	.catch((error) => logError("initialPlaybackContext", error));
 
-const sendTrackUpdate = async (payload: TrackUpdatePayload) => {
-	const params = new URLSearchParams(payload);
-	const sUrl = `http://localhost:3888/settrackid?${params.toString()}`;
-	// trace.log("Sending track update to Tidalspi:", sUrl);
-	try {
-		const response = await fetch(sUrl);
-		const result = await response.text();
-		// trace.log(`settrackid result: ${result}`);
-	} catch (error) {
-		trace.warn("Tidalspi connection error");
-		throw error;
-	}
-};
+// const sendTrackUpdate = async (payload: TrackUpdatePayload) => {
+// 	const params = new URLSearchParams(payload);
+// 	const sUrl = `http://localhost:3888/settrackid?${params.toString()}`;
+// 	// trace.log("Sending track update to Tidalspi:", sUrl);
+// 	try {
+// 		const response = await fetch(sUrl);
+// 		const result = await response.text();
+// 		// trace.log(`settrackid result: ${result}`);
+// 	} catch (error) {
+// 		trace.warn("Tidalspi connection error");
+// 		throw error;
+// 	}
+// };
 
 const extractCoverResourceId = (coverUrl?: string) => {
 	if (!coverUrl) return "";
