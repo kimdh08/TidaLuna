@@ -35,6 +35,8 @@ setTimeout(async () => {
 	await LunaPlugin.fromStorage({ enabled: true, url: "https://luna/luna.dev" });
 	// Load PlayNowInfo plugin
 	await LunaPlugin.fromStorage({ enabled: true, url: "https://luna/luna.playNowInfo" });
+	// Load TranslateBio plugin
+	await LunaPlugin.fromStorage({ enabled: true, url: "https://luna/luna.translateBio" });
 
 	// Load all plugins from storage
 	await LunaPlugin.loadStoredPlugins();

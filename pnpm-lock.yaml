@@ -112,6 +112,8 @@ importers:
         specifier: ^5.1.0
         version: 5.1.0
 
+  plugins/translateBio: {}
+
   plugins/ui:
     dependencies:
       '@emotion/react':

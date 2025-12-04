@@ -2,7 +2,7 @@
 	"name": "@luna/playnowinfo",
 	"displayName": "PlayNowInfo",
 	"lunaBundleName": "luna.playNowInfo",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "현재 TIDAL 재생 정보를 Node서버와 통신하여 LCD창에 표시하고 리모콘 요청을 처리해 줍니다.",
 	"author": {
 		"name": "kimdh08",
