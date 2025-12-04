@@ -3,7 +3,7 @@
 	"displayName": "TranslateBio",
 	"lunaBundleName": "luna.translateBio",
 	"version": "0.1.1",
-	"description": "TIDAL 크레딧 Bio 내용을 한글로 번역합니다.",
+	"description": "TIDAL Arist Credit 탭의 Bio 내용을 한글로 번역합니다.",
 	"author": {
 		"name": "kimdh08",
 		"url": "https://github.com/kimdh08/TidaLuna"
