@@ -86,6 +86,9 @@ To develop for the luna client follow these steps:
    mklink /D "%LOCALAPPDATA%\TIDAL\app-2.38.6\resources\app" "C:\Apps\TidaLuna\dist"
    ```
    위 링크를 생성하려면 먼저 app 폴더를 삭제해야 합니다.
+
+   만일 dist 폴더에 빌드된 플러그인 중 제외하고 싶은게 있다면 pnpm run build 이후에 아래 패치 실행
+   C:\apps\TidaLuna> pnpm exec tsx scripts/patch-runtime-plugins.ts --exclude playingInfo
    
 5. Launch Luna
 
