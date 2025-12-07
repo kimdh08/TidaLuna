@@ -10,20 +10,11 @@ type TidalCredentials = {
 	userId: string;
 };
 
-
-let credModule: (() => Promise<TidalCredentials>) | undefined;
-export const getCredentials = findModuleProperty<() => Promise<TidalCredentials>>(
-	(key, value) => key === "getCredentials" && typeof value === "function"
-)?.value || (async () => {
-	try {
-		if (!credModule) {
-			credModule = findModuleProperty<() => Promise<TidalCredentials>>(
-				(key, value) => key === "getCredentials" && typeof value === "function",
-			)?.value;
-			if (!credModule) throw new Error("Could not find Tidal credentials module");
-		}
-		return credModule();
-	} catch (err) {
-		throw new Error(`Failed to get Tidal credentials: ${(err as Error).message}`);
-	}
-});
+type GetCredentials = () => Promise<TidalCredentials>;
+export const getCredentials = async () => {
+	const getCredentials = await findModuleProperty<GetCredentials>((key, value) => key === "getCredentials" && typeof value === "function")?.value;
+	if (!getCredentials) throw new Error("Could not find Tidal credentials module");
+	const creds = await getCredentials?.();
+	if (!creds) throw new Error(`getCredentials returned ${typeof creds}!`);
+	return creds;
+};

@@ -1,4 +1,4 @@
-import { redux } from "@luna/lib";
+import { redux, Tidal } from "@luna/lib";
 import React from "react";
 import { LunaSettings, LunaSwitchSetting, SpinningButton } from "../../components";
 
@@ -7,15 +7,13 @@ import Grid from "@mui/material/Grid";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { grey } from "@mui/material/colors";
 
-const getFeatureFlags = () => redux.store.getState().featureFlags;
-
 export const LunaFeatureFlags = React.memo(() => {
-	const [featureFlags, setFeatureFlags] = React.useState(getFeatureFlags());
+	const [featureFlags, setFeatureFlags] = React.useState(Tidal.featureFlags);
 	const [hide, setHidden] = React.useState(false);
 
 	const setFlag = React.useCallback((flag: redux.FeatureFlag) => {
-		redux.actions["featureFlags/SET_FLAGS"]({ [flag.name]: { ...flag, value: !flag.value } });
-		setFeatureFlags(getFeatureFlags());
+		redux.actions["featureFlags/TOGGLE_USER_OVERRIDE"]({ ...flag, value: !flag.value });
+		setFeatureFlags(Tidal.featureFlags);
 	}, []);
 	return (
 		<LunaSettings
@@ -28,7 +26,7 @@ export const LunaFeatureFlags = React.memo(() => {
 		>
 			{!hide && (
 				<Grid spacing={2} container>
-					{Object.values(featureFlags.flags)
+					{Object.values(featureFlags)
 						.sort((a, b) => a.name.localeCompare(b.name))
 						.map((flag) => (
 							<Grid

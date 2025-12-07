@@ -8,4 +8,5 @@ export * from "./Playlist";
 export * from "./PlayState";
 export * from "./Quality";
 export * from "./StyleTag";
+export * from "./Tidal";
 export * from "./TidalApi";

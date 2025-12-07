@@ -117,10 +117,11 @@ export interface FeatureFlag<K extends string = string> {
 	type: "BOOLEAN";
 	value: boolean;
 }
+export type FeatureFlagSet = { [K in string]: FeatureFlag<K> };
 export interface FeatureFlags {
 	ready: boolean;
-	userOverrides: unknown;
-	flags: { [K in string]: FeatureFlag<K> };
+	userOverrides: { [K in string]: boolean };
+	flags: FeatureFlagSet;
 }
 // #endregion
 

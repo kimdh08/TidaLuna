@@ -796,7 +796,7 @@ export interface ActionPayloads {
 	"featureFlags/RESET_CACHE": unknown;
 	"featureFlags/SET_FLAGS": FeatureFlags["flags"];
 	"featureFlags/SET_USER_OVERRIDES": unknown;
-	"featureFlags/TOGGLE_USER_OVERRIDE": unknown;
+	"featureFlags/TOGGLE_USER_OVERRIDE": FeatureFlag;
 	// #endregion
 
 	// #region feed

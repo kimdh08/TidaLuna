@@ -5,7 +5,6 @@ import { LunaSettings } from "../../components";
 
 import { LunaPlugin } from "@luna/core";
 import { LunaPluginSettings } from "../PluginsTab/LunaPluginSettings";
-import { LunaClientUpdate } from "./LunaClientUpdate";
 import { LunaFeatureFlags } from "./LunaFeatureFlags";
 import { LunaVersionInfo } from "./LunaVersionInfo";
 
