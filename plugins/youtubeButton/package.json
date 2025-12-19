@@ -1,0 +1,18 @@
+{
+	"name": "@luna/youtubebutton",
+	"displayName": "YouTubeButton",
+	"lunaBundleName": "luna.youtubeButton",
+	"version": "0.1.0",
+	"description": "재생 컨트롤 바에 YouTube 검색 버튼을 추가합니다.",
+	"author": {
+		"name": "kimdh08",
+		"url": "https://github.com/kimdh08/TidaLuna"
+	},
+	"exports": {
+		".": {
+			"types": "./src/index.ts",
+			"default": "./src/index.ts"
+		}
+	},
+	"types": "./src/index.ts"
+}

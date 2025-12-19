@@ -35,6 +35,8 @@ setTimeout(async () => {
 	await LunaPlugin.fromStorage({ enabled: true, url: "https://luna/luna.dev" });
 	// Load PlayNowInfo plugin
 	await LunaPlugin.fromStorage({ enabled: true, url: "https://luna/luna.playNowInfo" });
+	// Load YouTube control button plugin
+	await LunaPlugin.fromStorage({ enabled: true, url: "https://luna/luna.youtubeButton" });
 	// Load TranslateBio plugin
 	await LunaPlugin.fromStorage({ enabled: true, url: "https://luna/luna.translateBio" });
 
