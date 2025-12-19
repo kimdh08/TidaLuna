@@ -36,7 +36,7 @@ const insertYoutubeButton = (heartButton: HTMLButtonElement) => {
 	button.style.justifyContent = "center";
 	const baseWidth = heartButton.offsetWidth || 32;
 	const baseHeight = heartButton.offsetHeight || 32;
-	const targetSize = Math.max(baseWidth, baseHeight) + 2;
+	const targetSize = Math.max(baseWidth, baseHeight) + 4;
 	button.style.width = `${targetSize}px`;
 	button.style.height = `${targetSize}px`;
 	button.style.marginRight = "6px";
@@ -48,7 +48,11 @@ const insertYoutubeButton = (heartButton: HTMLButtonElement) => {
 	button.style.padding = heartButton.style.padding || "0";
 	button.style.transition = heartButton.style.transition || "opacity 0.2s ease";
 	button.style.opacity = heartButton.style.opacity || "0.9";
-	button.innerHTML = "<svg viewBox='0 0 24 24' width='18' height='18' aria-hidden='true'><path fill='currentColor' d='M21.8 8.001s-.2-1.4-.8-2c-.8-.9-1.7-.9-2.1-1C15.5 4.8 12 4.8 12 4.8h0s-3.5 0-6.9.2c-.4.1-1.3.1-2.1 1-.6.6-.8 2-.8 2S2 9.6 2 11.2v1.6c0 1.6.2 3.2.2 3.2s.2 1.4.8 2c.8.9 1.9.8 2.4.9 1.8.2 7.6.2 7.6.2s3.5 0 6.9-.2c.4-.1 1.3-.1 2.1-1 .6-.6.8-2 .8-2s.2-1.6.2-3.2v-1.6c0-1.6-.2-3.2-.2-3.2zM10 14.8V8.9l5.2 3-5.2 2.9z'/></svg>";
+	button.innerHTML =
+		"<svg viewBox='0 0 24 24' width='20' height='20' aria-hidden='true' focusable='false'>" +
+		"<path fill='#ff1f1f' d='M21.8 8.001s-.2-1.4-.8-2c-.8-.9-1.7-.9-2.1-1C15.5 4.8 12 4.8 12 4.8s-3.5 0-6.9.2c-.4.1-1.3.1-2.1 1-.6.6-.8 2-.8 2S2 9.6 2 11.2v1.6c0 1.6.2 3.2.2 3.2s.2 1.4.8 2c.8.9 1.9.8 2.4.9 1.8.2 7.6.2 7.6.2s3.5 0 6.9-.2c.4-.1 1.3-.1 2.1-1 .6-.6.8-2 .8-2s.2-1.6.2-3.2v-1.6c0-1.6-.2-3.2-.2-3.2z'/>" +
+		"<path fill='white' d='M10 14.8V8.9l5.2 3-5.2 2.9z'/>" +
+		"</svg>";
 
 	const onClick = () => openYoutubeSearch().catch((error: unknown) => logError("openYoutube", error));
 	const onEnter = () => {
