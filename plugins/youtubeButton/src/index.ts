@@ -5,14 +5,8 @@ export const unloads = new Set<LunaUnload>();
 
 const { trace } = Tracer("[youtubeButton]");
 
-const HEART_SELECTORS = [
-	"button[aria-label='Add to favorites']",
-	"button[aria-label='Added to favorites']",
-	"button[data-test*='favorite']",
-	"button[data-test*='heart']",
-	"button[title*='favorite']",
-	"button[title*='Favorite']",
-];
+// Target only the footer (playback bar) favorite/heart button
+const HEART_SELECTORS = ["button[data-test='footer-favorite-button']"];
 
 const BUTTON_CLASS = "luna-youtube-button";
 
