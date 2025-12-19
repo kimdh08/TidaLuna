@@ -15,6 +15,7 @@ Please check the following before continuing:
 
 ## Environment
  - **OS**: Windows, Linux or MacOS
+ - **Client Version**: Luna client version
 
 ## Description
 A clear and concise description of what the bug/issue is.
